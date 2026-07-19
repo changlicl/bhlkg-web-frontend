@@ -68,7 +68,14 @@
   .menubar .apple {
     display: flex; align-items: center; padding: 0 8px;
   }
-  .menubar .apple svg { width: 15px; height: 15px; }
+  .menubar .apple img.menubar-logo {
+    display: block; width: 22px; height: 16px;
+    object-fit: contain; image-rendering: auto;
+  }
+  .about-logo {
+    display: block; width: 40px; height: 28px;
+    object-fit: contain; image-rendering: auto;
+  }
   .menu-item {
     appearance: none; background: none; border: 0; cursor: pointer;
     font: inherit; font-size: 14px; letter-spacing: .02em;
@@ -185,6 +192,72 @@
   .window.focused { z-index: 100; }
 
   /* ============================================================
+     Component 07 — frame windows (PNG chrome from /images)
+     ============================================================ */
+  .window.frame-win {
+    /* match Welcome / System-7 window default width */
+    width: 400px;
+    max-width: calc(100vw - 20px);
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+    padding: 0;
+    resize: none;                 /* no drag-to-resize */
+    overflow: hidden;
+  }
+  .window.frame-win:not(.focused) .closebox { visibility: visible; }
+  .frame-chrome {
+    position: relative;
+    user-select: none;
+    touch-action: none;
+    cursor: default;
+  }
+  .frame-chrome > img {
+    display: block;
+    width: 100%;
+    height: auto;
+    pointer-events: none;
+    user-select: none;
+    -webkit-user-drag: none;
+  }
+  /* drag only via titlebar strip — not edges/corners (no resize) */
+  .frame-titlebar {
+    position: absolute;
+    left: 0; right: 36px; top: 0;   /* leave room for close on the right */
+    height: 8%;
+    min-height: 22px;
+    max-height: 36px;
+    cursor: grab;
+    z-index: 1;
+  }
+  .frame-titlebar:active { cursor: grabbing; }
+  .frame-notification .frame-titlebar {
+    left: 36px; right: 0;           /* notification close is on the left */
+    height: 14%;
+    max-height: 48px;
+  }
+  .frame-win .closebox.frame-close {
+    position: absolute;
+    appearance: none;
+    margin: 0; padding: 0;
+    background: transparent;
+    border: 0;
+    box-shadow: none;
+    cursor: pointer;
+    z-index: 3;
+  }
+  .frame-win .closebox.frame-close:active { background: rgba(0,0,0,.12); }
+  /* larger hit targets so the painted X / close box is easy to click */
+  .frame-close-tr {
+    top: 1.2%; right: 0.8%;
+    width: 32px; height: 24px;
+  }
+  .frame-close-tl {
+    top: 3.5%; left: 2.5%;
+    width: 32px; height: 24px;
+  }
+
+  /* ============================================================
      Component 05 — desktop department shortcuts (draggable)
      ============================================================ */
   .icons { position: fixed; inset: 0; z-index: 5; pointer-events: none; }
@@ -284,17 +357,17 @@
 
   <!-- ============ Component 05 · desktop department shortcuts ============ -->
   <div class="icons" id="icons">
-    <button class="dicon" id="ico-media" data-win="win-media" aria-label="Media department">
+    <button class="dicon" id="ico-video" data-win="win-video" data-desk="video" aria-label="Video">
       <img class="dicon-img" src="images/ascii-media.png" alt="" width="64" height="64" draggable="false" />
-      <span class="dicon-label">Media</span>
+      <span class="dicon-label">Video</span>
     </button>
 
-    <button class="dicon" id="ico-fashion" data-win="win-fashion" aria-label="Fashion department">
+    <button class="dicon" id="ico-fashion" data-win="win-fashion-app" data-desk="fashion" aria-label="Fashion">
       <img class="dicon-img" src="images/ascii-fashion.png" alt="" width="64" height="64" draggable="false" />
       <span class="dicon-label">Fashion</span>
     </button>
 
-    <button class="dicon" id="ico-magazine" data-win="win-magazine" aria-label="Magazine department">
+    <button class="dicon" id="ico-magazine" data-win="win-magazine-app" data-desk="magazine" aria-label="Magazine">
       <img class="dicon-img" src="images/ascii-magazine.png" alt="" width="64" height="64" draggable="false" />
       <span class="dicon-label">Magazine</span>
     </button>
@@ -344,7 +417,7 @@
 
   <!-- ================= Component 01 · top navigation ================= -->
   <header class="menubar" role="menubar" aria-label="bhlkg desktop menu">
-    <span class="apple" aria-hidden="true"><svg style="width:15px;height:15px;display:block" viewBox="0 0 12 12" fill="currentColor" shape-rendering="crispEdges" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><rect x="1" y="0" width="10" height="1"/><rect x="0" y="1" width="1" height="1"/><rect x="11" y="1" width="1" height="1"/><rect x="0" y="2" width="1" height="1"/><rect x="3" y="2" width="1" height="1"/><rect x="8" y="2" width="1" height="1"/><rect x="11" y="2" width="1" height="1"/><rect x="0" y="3" width="1" height="1"/><rect x="11" y="3" width="1" height="1"/><rect x="0" y="4" width="1" height="1"/><rect x="5" y="4" width="2" height="1"/><rect x="11" y="4" width="1" height="1"/><rect x="0" y="5" width="1" height="1"/><rect x="5" y="5" width="2" height="1"/><rect x="11" y="5" width="1" height="1"/><rect x="1" y="6" width="1" height="1"/><rect x="10" y="6" width="1" height="1"/><rect x="1" y="7" width="1" height="1"/><rect x="4" y="7" width="4" height="1"/><rect x="10" y="7" width="1" height="1"/><rect x="2" y="8" width="1" height="1"/><rect x="9" y="8" width="1" height="1"/><rect x="3" y="9" width="1" height="1"/><rect x="8" y="9" width="1" height="1"/><rect x="4" y="10" width="1" height="1"/><rect x="7" y="10" width="1" height="1"/><rect x="5" y="11" width="2" height="1"/></svg></span>
+    <span class="apple" aria-hidden="true"><img class="menubar-logo" src="images/bhlkg%20logo.png" alt="" width="22" height="16" draggable="false" /></span>
     <button class="menu-item" id="m-home" data-win="win-welcome" role="menuitem">bhlkg</button>
     <button class="menu-item" id="m-about" data-win="win-about" role="menuitem">About Us</button>
 
@@ -408,7 +481,7 @@
       </div>
       <div class="win-body">
         <div class="row">
-          <span class="ic"><svg class="pxi" style="width:28px;height:28px" viewBox="0 0 12 12" fill="currentColor" shape-rendering="crispEdges" aria-hidden="true" xmlns="http://www.w3.org/2000/svg"><rect x="1" y="0" width="10" height="1"/><rect x="0" y="1" width="1" height="1"/><rect x="11" y="1" width="1" height="1"/><rect x="0" y="2" width="1" height="1"/><rect x="3" y="2" width="1" height="1"/><rect x="8" y="2" width="1" height="1"/><rect x="11" y="2" width="1" height="1"/><rect x="0" y="3" width="1" height="1"/><rect x="11" y="3" width="1" height="1"/><rect x="0" y="4" width="1" height="1"/><rect x="5" y="4" width="2" height="1"/><rect x="11" y="4" width="1" height="1"/><rect x="0" y="5" width="1" height="1"/><rect x="5" y="5" width="2" height="1"/><rect x="11" y="5" width="1" height="1"/><rect x="1" y="6" width="1" height="1"/><rect x="10" y="6" width="1" height="1"/><rect x="1" y="7" width="1" height="1"/><rect x="4" y="7" width="4" height="1"/><rect x="10" y="7" width="1" height="1"/><rect x="2" y="8" width="1" height="1"/><rect x="9" y="8" width="1" height="1"/><rect x="3" y="9" width="1" height="1"/><rect x="8" y="9" width="1" height="1"/><rect x="4" y="10" width="1" height="1"/><rect x="7" y="10" width="1" height="1"/><rect x="5" y="11" width="2" height="1"/></svg></span>
+          <span class="ic"><img class="about-logo" src="images/bhlkg%20logo.png" alt="bhlkg" width="40" height="28" draggable="false" /></span>
           <p class="m-0">bhlkg — blue holy lord knight god.<br/>
           A small desk on the open internet, kept in 1-bit.</p>
         </div>
@@ -583,52 +656,170 @@
       </div>
       <div class="win-status"><span>inbox: 0 unread</span><span>outbox: full</span></div>
     </section>
+
+    <!-- ============ Component 07 · frame windows (auto-open) ============ -->
+    <section class="window frame-win frame-video" id="win-video" data-desk="video"
+             style="left:320px; top:56px;" aria-label="bhlkg.mov">
+      <div class="frame-chrome">
+        <img src="images/bhlkg_video%20frame_bkwh.png" alt="bhlkg.mov" draggable="false" />
+        <div class="frame-titlebar" data-drag aria-hidden="true"></div>
+        <button type="button" class="closebox frame-close frame-close-tr" aria-label="Close window"></button>
+      </div>
+    </section>
+
+    <section class="window frame-win frame-fashion" id="win-fashion-app" data-desk="fashion"
+             style="left:160px; top:220px;" aria-label="Fashion">
+      <div class="frame-chrome">
+        <img src="images/fashion%20frame.png" alt="Fashion" draggable="false" />
+        <div class="frame-titlebar" data-drag aria-hidden="true"></div>
+        <button type="button" class="closebox frame-close frame-close-tr" aria-label="Close window"></button>
+      </div>
+    </section>
+
+    <section class="window frame-win frame-magazine" id="win-magazine-app" data-desk="magazine"
+             style="left:560px; top:280px;" aria-label="Magazine">
+      <div class="frame-chrome">
+        <img src="images/magazine%20frame.png" alt="Magazine" draggable="false" />
+        <div class="frame-titlebar" data-drag aria-hidden="true"></div>
+        <button type="button" class="closebox frame-close frame-close-tr" aria-label="Close window"></button>
+      </div>
+    </section>
+
+    <section class="window frame-win frame-notification" id="win-notification" data-desk="notification"
+             style="left:780px; top:48px;" aria-label="Notification">
+      <div class="frame-chrome">
+        <img src="images/notification%20window.png" alt="Notification" draggable="false" />
+        <div class="frame-titlebar" data-drag aria-hidden="true"></div>
+        <button type="button" class="closebox frame-close frame-close-tl" aria-label="Close window"></button>
+      </div>
+    </section>
   </main>
 
 <script>
+/* ------- desktop window registry (reusable, no per-icon hardcoding) ------- */
+const desktopWindows = {
+  video: {
+    id: 'win-video',
+    frame: 'frame_bkwh',
+    icon: 'ico-video',
+    defaultOpen: true,
+    /* upper-middle — fractions of the viewport */
+    defaultPosition: { x: 0.28, y: 0.08 },
+  },
+  fashion: {
+    id: 'win-fashion-app',
+    frame: 'fashion',
+    icon: 'ico-fashion',
+    defaultOpen: true,
+    /* left / lower-left */
+    defaultPosition: { x: 0.15, y: 0.30 },
+  },
+  magazine: {
+    id: 'win-magazine-app',
+    frame: 'magazine',
+    icon: 'ico-magazine',
+    defaultOpen: true,
+    /* right / lower-right */
+    defaultPosition: { x: 0.50, y: 0.34 },
+  },
+  notification: {
+    id: 'win-notification',
+    frame: 'notification',
+    icon: null,
+    defaultOpen: true,
+    /* upper-right */
+    defaultPosition: { x: 0.68, y: 0.07 },
+  },
+};
+
 /* ------- tiny window manager: focus, close, drag (pointer events) ------- */
 const wins = [...document.querySelectorAll('.window')];
-const menuFor = w => document.querySelector(`.menu-item[data-win="${w.id}"]`);
+let topZ = 100;
 
 function focusWin(w) {
-  wins.forEach(x => { x.classList.toggle('focused', x === w); });
+  if (!w) {
+    wins.forEach(x => x.classList.remove('focused'));
+    document.querySelectorAll('.menu-item').forEach(m => m.classList.remove('is-open'));
+    return;
+  }
+  topZ += 1;
+  w.style.zIndex = topZ;
+  wins.forEach(x => x.classList.toggle('focused', x === w));
   document.querySelectorAll('.menu-item').forEach(m => {
     const t = document.getElementById(m.dataset.win);
     m.classList.toggle('is-open', t && t.classList.contains('open') && t.classList.contains('focused'));
   });
 }
+
 const spawnPos = { 'win-welcome': [-36, -64], 'win-about': [42, -18] };
+
+function placeFromConfig(w, cfg) {
+  if (!cfg || w.dataset.placed) return;
+  const ww = w.offsetWidth || 400;
+  const wh = w.offsetHeight || 280;
+  const x = Math.round(innerWidth * cfg.defaultPosition.x);
+  const y = Math.round(innerHeight * cfg.defaultPosition.y);
+  w.style.left = x + 'px';
+  w.style.top  = y + 'px';
+  w.dataset.placed = '1';
+}
+
 function openWin(w) {
+  if (!w) return;
   w.classList.add('open');
-  const pos = spawnPos[w.id];
-  if (pos && !w.dataset.placed) {
-    const ww = w.offsetWidth || 400;
-    const wh = w.offsetHeight || 280;
-    w.style.left = Math.round((innerWidth - ww) / 2 + pos[0]) + 'px';
-    w.style.top  = Math.round((innerHeight - wh) / 2 + pos[1]) + 'px';
-    w.dataset.placed = '1';
+  const key = w.dataset.desk;
+  const cfg = key && desktopWindows[key];
+  if (cfg) {
+    placeFromConfig(w, cfg);
+  } else {
+    const pos = spawnPos[w.id];
+    if (pos && !w.dataset.placed) {
+      const ww = w.offsetWidth || 400;
+      const wh = w.offsetHeight || 280;
+      w.style.left = Math.round((innerWidth - ww) / 2 + pos[0]) + 'px';
+      w.style.top  = Math.round((innerHeight - wh) / 2 + pos[1]) + 'px';
+      w.dataset.placed = '1';
+    }
   }
   clampWin(w);
   focusWin(w);
 }
-function closeWin(w) { w.classList.remove('open'); w.classList.remove('focused');
-  const next = wins.find(x => x.classList.contains('open'));
+
+function closeWin(w) {
+  w.classList.remove('open');
+  w.classList.remove('focused');
+  const next = [...wins].reverse().find(x => x.classList.contains('open'));
   if (next) focusWin(next); else focusWin(null);
 }
+
 function clampWin(w) {
   const r = w.getBoundingClientRect();
   const mb = 26, pad = 6;
-  let x = Math.min(Math.max(parseFloat(w.style.left)||0, pad), Math.max(pad, innerWidth - r.width - pad));
-  let y = Math.min(Math.max(parseFloat(w.style.top)||0, mb + pad), Math.max(mb + pad, innerHeight - 60));
-  w.style.left = x + 'px'; w.style.top = y + 'px';
+  let x = Math.min(Math.max(parseFloat(w.style.left) || 0, pad), Math.max(pad, innerWidth - r.width - pad));
+  let y = Math.min(Math.max(parseFloat(w.style.top) || 0, mb + pad), Math.max(mb + pad, innerHeight - 60));
+  w.style.left = x + 'px';
+  w.style.top = y + 'px';
 }
 
-wins.forEach(w => {
-  w.addEventListener('pointerdown', () => focusWin(w));
-  w.querySelector('.closebox').addEventListener('click', e => { e.stopPropagation(); closeWin(w); });
+function bindWindow(w) {
+  w.addEventListener('pointerdown', e => {
+    if (e.target.closest('.closebox')) return;
+    focusWin(w);
+  });
+  const close = w.querySelector('.closebox');
+  if (close) {
+    close.addEventListener('pointerdown', e => { e.stopPropagation(); });
+    close.addEventListener('click', e => {
+      e.preventDefault();
+      e.stopPropagation();
+      closeWin(w);
+    });
+  }
   const bar = w.querySelector('[data-drag]');
+  if (!bar) return;
   bar.addEventListener('pointerdown', e => {
-    if (e.target.classList.contains('closebox')) return;
+    if (e.target.closest('.closebox')) return;
+    e.preventDefault();
     focusWin(w);
     const sx = e.clientX - w.offsetLeft, sy = e.clientY - w.offsetTop;
     bar.setPointerCapture(e.pointerId);
@@ -636,12 +827,17 @@ wins.forEach(w => {
       w.style.left = (ev.clientX - sx) + 'px';
       w.style.top  = Math.max(26, ev.clientY - sy) + 'px';
     };
-    const up = () => { bar.removeEventListener('pointermove', move);
-                        bar.removeEventListener('pointerup', up); clampWin(w); };
+    const up = () => {
+      bar.removeEventListener('pointermove', move);
+      bar.removeEventListener('pointerup', up);
+      clampWin(w);
+    };
     bar.addEventListener('pointermove', move);
     bar.addEventListener('pointerup', up);
   });
-});
+}
+
+wins.forEach(bindWindow);
 
 document.querySelectorAll('.menu-item').forEach(m => {
   m.addEventListener('click', () => {
@@ -651,7 +847,7 @@ document.querySelectorAll('.menu-item').forEach(m => {
   });
 });
 
-/* ------- desktop department shortcuts: select, drag, double-click ------- */
+/* ------- desktop department shortcuts: select, drag, click → open/focus ------- */
 const dicons = [...document.querySelectorAll('.dicon')];
 
 (function layoutIcons() {
@@ -668,6 +864,11 @@ function selectIcon(ic) {
   dicons.forEach(x => x.classList.toggle('selected', x === ic));
 }
 
+function openFromIcon(ic) {
+  const w = document.getElementById(ic.dataset.win);
+  if (w) openWin(w); /* reopen if closed; focus + raise z-index if already open */
+}
+
 dicons.forEach(ic => {
   let dragged = false;
   ic.addEventListener('pointerdown', e => {
@@ -678,7 +879,7 @@ dicons.forEach(ic => {
     ic.setPointerCapture(e.pointerId);
     const move = ev => {
       const dx = ev.clientX - sx, dy = ev.clientY - sy;
-      if (!dragged && Math.abs(dx) + Math.abs(dy) < 5) return;  // click vs drag threshold
+      if (!dragged && Math.abs(dx) + Math.abs(dy) < 5) return;
       dragged = true;
       ic.classList.add('dragging');
       selectIcon(ic);
@@ -693,24 +894,47 @@ dicons.forEach(ic => {
     ic.addEventListener('pointermove', move);
     ic.addEventListener('pointerup', up);
   });
-  ic.addEventListener('click', () => { if (!dragged) selectIcon(ic); });
-  ic.addEventListener('dblclick', () => {
+  ic.addEventListener('click', () => {
     if (dragged) return;
-    const w = document.getElementById(ic.dataset.win);
-    if (w) openWin(w);
+    selectIcon(ic);
+    openFromIcon(ic);
+  });
+  ic.addEventListener('dblclick', e => {
+    /* single-click already opens; prevent accidental double-toggle feel */
+    e.preventDefault();
+    if (!dragged) openFromIcon(ic);
   });
   ic.addEventListener('keydown', e => {
-    if (e.key === 'Enter') {
-      const w = document.getElementById(ic.dataset.win);
-      if (w) openWin(w);
-    }
+    if (e.key === 'Enter') openFromIcon(ic);
   });
 });
 
 /* click on empty desktop clears icon selection */
 document.addEventListener('pointerdown', e => {
-  if (!e.target.closest('.dicon')) dicons.forEach(x => x.classList.remove('selected'));
+  if (!e.target.closest('.dicon') && !e.target.closest('.window')) {
+    dicons.forEach(x => x.classList.remove('selected'));
+  }
 });
+
+/* auto-open registered desktop windows in a scattered composition */
+function bootDesktopWindows() {
+  const order = ['video', 'fashion', 'magazine', 'notification'];
+  order.forEach((key, i) => {
+    const cfg = desktopWindows[key];
+    if (!cfg || !cfg.defaultOpen) return;
+    const w = document.getElementById(cfg.id);
+    if (!w) return;
+    w.classList.add('open');
+    placeFromConfig(w, cfg);
+    clampWin(w);
+    w.style.zIndex = 40 + i;
+  });
+  /* fashion sits in front of the initial stack, matching a lived-in desktop */
+  const fashion = document.getElementById(desktopWindows.fashion.id);
+  if (fashion) focusWin(fashion);
+}
+
+addEventListener('load', bootDesktopWindows);
 
 /* ------- dir listings: inject 1-bit folder/file glyphs ------- */
 (function () {
