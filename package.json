@@ -1,0 +1,24 @@
+{
+  "name": "bhlkg-web",
+  "version": "1.0.0",
+  "description": "bhlkg web frontend",
+  "main": "app.js",
+  "scripts": {
+    "start": "npx --yes serve -l 3000",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/changlicl/bhlkg-web-frontend.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/changlicl/bhlkg-web-frontend/issues"
+  },
+  "homepage": "https://github.com/changlicl/bhlkg-web-frontend#readme",
+  "dependencies": {
+    "@splinetool/runtime": "^1.12.98"
+  }
+}

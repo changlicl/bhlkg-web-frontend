@@ -1,0 +1,568 @@
+  /* ============================================================
+     bhlkg design tokens — extracted from the reference site
+     (classic 1-bit desktop language; values marked in spec doc)
+     ============================================================ */
+  :root {
+    --ink: #000000;
+    --paper: #ffffff;
+    --disabled-face: #dddddd;
+    --disabled-ink: #808080;
+    --menubar-h: 26px;
+    --titlebar-h: 26px;
+    --win-border: 2px;
+    --win-pad: 22px;
+    --row-gap: 18px;
+    --icon-col: 40px;
+    --shadow-step: 2px;
+    --t-instant: 0ms;         /* authentic: state changes snap, no easing */
+    --ui-scale: 1;            /* proportional frame scale vs design width */
+    --ui-design-w: 1280;      /* reference viewport width (px) for --ui-scale */
+  }
+  @font-face {
+    font-family: 'ChicagoFLF';  /* public domain (Robin Casady) */
+    src: url("fonts/ChicagoFLF.woff") format("woff");
+    font-weight: normal; font-style: normal; font-display: swap;
+  }
+  html, body { height: 100%; width: 100%; }
+  body {
+    margin: 0;
+    font-family: 'ChicagoFLF', 'Chicago', 'Geneva', 'Charcoal', monospace;
+    font-size: 13px;
+    line-height: 1.45;
+    letter-spacing: .02em;
+    color: var(--ink);
+    -webkit-font-smoothing: none;
+    font-smooth: never;
+    text-rendering: optimizeSpeed;
+    overflow: hidden;
+    overscroll-behavior: none;
+    background: #0a0a0a;
+  }
+
+  /* ============================================================
+     Two full-screen states: Spline landing ↔ HTML desktop
+     ============================================================ */
+  #spline-landing {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 2000;
+    background: #000;
+    overflow: hidden;
+    opacity: 1;
+    transform: scale(1);
+    transform-origin: center center;
+    transition:
+      opacity 0.9s ease,
+      transform 0.9s cubic-bezier(0.22, 0.61, 0.36, 1);
+    pointer-events: auto;
+  }
+  /* Hidden while desktop is active — scene kept alive, not recreated */
+  body.desktop-active #spline-landing,
+  #spline-landing.is-parked {
+    display: none !important;
+    pointer-events: none !important;
+  }
+  body.landing-active #spline-landing {
+    display: block;
+    pointer-events: auto;
+  }
+  /*
+   * Enter transition (MonitorScreen + Launch bhlkg share this):
+   * scale toward monitor + fade to black. Must beat landing-active specificity.
+   */
+  #spline-landing.is-exiting,
+  body.landing-active #spline-landing.is-exiting {
+    opacity: 0;
+    transform: scale(1.18);
+    pointer-events: none;
+  }
+
+  #canvas3d {
+    position: absolute;
+    inset: 0;
+    width: 100%;
+    height: 100%;
+    display: block;
+    pointer-events: auto;
+    touch-action: none;
+    cursor: default;
+  }
+  #canvas3d.is-monitor-hover {
+    cursor: pointer;
+  }
+
+  /* ---- CRT monitor: static desktop-preview.png + centered logo ---- */
+  /* TEMP DEBUG: hide/opacity rules disabled so the forced center test box can show */
+  #monitor-preview {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 0;
+    height: 0;
+    z-index: 1;
+    overflow: hidden;
+    pointer-events: none; /* clicks pass through to Spline MonitorScreen */
+    /* opacity: 0; */
+    /* visibility: hidden; */
+  }
+  #monitor-preview.is-ready {
+    /* opacity: 1; */
+    /* visibility: visible; */
+  }
+  /* Hide only during enter transition / while desktop is up; restored on Exit */
+  /*
+  body.desktop-active #monitor-preview,
+  #spline-landing.is-exiting #monitor-preview {
+    opacity: 0;
+    visibility: hidden;
+  }
+  */
+
+  .monitor-preview-clip {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    overflow: hidden;
+    border-radius: 2px;
+    background: #0a0a0a;
+  }
+
+  .monitor-preview-desktop-img {
+    position: absolute;
+    inset: 0;
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    object-position: center;
+    pointer-events: none;
+    user-select: none;
+    -webkit-user-drag: none;
+  }
+
+  .monitor-preview-logo {
+    position: absolute;
+    inset: 0;
+    z-index: 6;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    background: transparent;
+  }
+  .monitor-preview-logo img {
+    display: block;
+    width: 22%;
+    max-width: 96px;
+    height: auto;
+    object-fit: contain;
+    image-rendering: auto;
+    filter: drop-shadow(0 1px 0 #000) drop-shadow(0 0 8px rgba(0, 0, 0, 0.4));
+  }
+
+  #launch-bhlkg-btn {
+    position: absolute;
+    left: 50%;
+    bottom: 8%;
+    transform: translateX(-50%);
+    z-index: 2;
+    appearance: none;
+    cursor: pointer;
+    font: inherit;
+    font-size: 14px;
+    letter-spacing: .04em;
+    color: #fff;
+    background: rgba(0, 0, 0, 0.55);
+    border: 1px solid #fff;
+    padding: 10px 22px;
+  }
+  #launch-bhlkg-btn:hover,
+  #launch-bhlkg-btn:focus-visible {
+    background: #fff;
+    color: #000;
+    outline: none;
+  }
+  #launch-bhlkg-btn:disabled {
+    opacity: 0.5;
+    cursor: default;
+  }
+  #spline-landing.is-exiting #launch-bhlkg-btn {
+    opacity: 0;
+    pointer-events: none;
+    transition: opacity 0.35s ease;
+  }
+
+  #desktop-interface {
+    position: fixed;
+    inset: 0;
+    width: 100vw;
+    height: 100vh;
+    z-index: 1;
+    opacity: 0;
+    visibility: hidden;
+    pointer-events: none;
+    transition: opacity 0.7s ease;
+  }
+  /* Fully remove from hit-testing while landing is active */
+  body.landing-active #desktop-interface,
+  #desktop-interface[hidden] {
+    display: none !important;
+    pointer-events: none !important;
+  }
+  body.desktop-active #desktop-interface {
+    display: block !important;
+    opacity: 1;
+    visibility: visible;
+    pointer-events: auto;
+  }
+  body.desktop-exiting #desktop-interface {
+    display: block !important;
+    opacity: 0;
+    visibility: visible;
+    pointer-events: none;
+  }
+
+  /* ---- Component 04: replaced background (own image), UI floats above ---- */
+  .desktop {
+    position: fixed; inset: 0;
+    background: url("images/ascii-background replace.png") center / cover no-repeat;
+    image-rendering: auto;
+    z-index: 1;
+  }
+  .pxi { display: block; width: 32px; height: 32px; image-rendering: pixelated; }
+  a { color: var(--ink); text-decoration: underline; text-underline-offset: 2px; }
+  a:hover { background: var(--ink); color: var(--paper); text-decoration: none; }
+
+  /* ============================================================
+     Component 01 — top navigation (menu bar)
+     ============================================================ */
+  .menubar {
+    position: fixed; top: 0; left: 0; right: 0; z-index: 900;
+    height: var(--menubar-h);
+    background: var(--paper);
+    border-bottom: 1px solid var(--ink);
+    display: flex; align-items: stretch;
+    padding: 0 10px 0 8px;
+    user-select: none;
+  }
+  .menubar .apple {
+    display: flex; align-items: center; padding: 0 8px;
+  }
+  .menubar .apple img.menubar-logo {
+    display: block; width: 22px; height: 16px;
+    object-fit: contain; image-rendering: auto;
+  }
+  .about-logo {
+    display: block; width: 40px; height: 28px;
+    object-fit: contain; image-rendering: auto;
+  }
+  .menu-item {
+    appearance: none; background: none; border: 0; cursor: pointer;
+    font: inherit; font-size: 14px; letter-spacing: .02em;
+    color: var(--ink);
+    display: flex; align-items: center;
+    padding: 0 12px;
+    transition: none;                 /* snap, no easing */
+  }
+  .menu-item:hover, .menu-item:active, .menu-item.is-open {
+    background: var(--ink); color: var(--paper);
+  }
+  .menu-item:focus-visible { outline: 1px dotted var(--ink); outline-offset: -3px; }
+
+  /* ============================================================
+     Component 03 — top-right Exit → back to Spline landing
+     ============================================================ */
+  .exit-btn {
+    appearance: none;
+    margin-left: auto; align-self: stretch;
+    font: inherit; font-size: 14px; letter-spacing: .02em;
+    color: var(--ink);
+    background: none; border: 0; box-shadow: none;
+    display: flex; align-items: center;
+    padding: 0 12px;
+    cursor: pointer;
+    user-select: none;
+  }
+  .exit-btn:hover,
+  .exit-btn:focus-visible {
+    background: var(--ink);
+    color: var(--paper);
+    outline: none;
+  }
+
+  /* ============================================================
+     Component 02 — popup window (System-7 style)
+     ============================================================ */
+  .window {
+    position: absolute;
+    width: 400px; max-width: calc(100vw - 20px);
+    background: var(--paper);
+    border: var(--win-border) solid var(--ink);
+    box-shadow: var(--shadow-step) var(--shadow-step) 0 var(--ink);
+    display: none;
+  }
+  .window.open { display: block; }
+
+  /* Fixed design size; whole chrome scales with viewport ratio */
+  .window.ratio-scale {
+    width: 400px;
+    max-width: none;
+    transform: scale(var(--ui-scale));
+    transform-origin: top left;
+  }
+
+  .win-actions {
+    display: flex;
+    justify-content: center;
+    margin-top: 18px;
+  }
+  .sys-btn {
+    appearance: none;
+    font: inherit;
+    font-size: 13px;
+    color: var(--ink);
+    background: var(--paper);
+    border: 1px solid var(--ink);
+    box-shadow: 1px 1px 0 var(--ink);
+    padding: 4px 18px;
+    min-width: 88px;
+    cursor: pointer;
+  }
+  .sys-btn:active {
+    background: var(--ink);
+    color: var(--paper);
+    box-shadow: none;
+    transform: translate(1px, 1px);
+  }
+  .sys-btn:focus-visible {
+    outline: 1px dotted var(--ink);
+    outline-offset: 3px;
+  }
+  .m-0 { margin: 0; }
+  .titlebar {
+    position: relative;
+    height: var(--titlebar-h);
+    border-bottom: 1px solid var(--ink);
+    display: flex; align-items: center;
+    padding: 0 6px;
+    cursor: grab;
+    background-color: var(--paper);
+    background-image:
+      linear-gradient(var(--ink), var(--ink)),
+      linear-gradient(var(--ink), var(--ink)),
+      linear-gradient(var(--ink), var(--ink));
+    background-size: 100% 1px;
+    background-position:
+      center 25%,
+      center 50%,
+      center 75%;
+    background-repeat: no-repeat;
+    background-clip: content-box;
+    padding-top: 6px; padding-bottom: 6px;
+    box-sizing: border-box;
+    user-select: none; touch-action: none;
+  }
+  .window:not(.focused) .titlebar {
+    cursor: grab;
+  }
+  .titlebar:active { cursor: grabbing; }
+  .closebox {
+    appearance: none; cursor: pointer; padding: 0;
+    width: 13px; height: 13px;
+    background: var(--paper);
+    border: 1px solid var(--ink);
+    box-shadow: 0 0 0 3px var(--paper);   /* white gap that breaks the stripes */
+    margin-left: auto;
+    margin-right: 4px;
+  }
+  .closebox:active { background: var(--ink); }
+  .closebox:focus-visible { outline: 1px dotted var(--ink); outline-offset: 4px; }
+
+  .win-controls {
+    margin-left: auto;
+    margin-right: 4px;
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    position: relative;
+    z-index: 2;
+  }
+  .win-controls .closebox {
+    margin-left: 0;
+    margin-right: 0;
+  }
+  .win-btn {
+    appearance: none; cursor: pointer; padding: 0;
+    width: 13px; height: 13px;
+    background: var(--paper);
+    border: 1px solid var(--ink);
+    box-shadow: 0 0 0 3px var(--paper);
+    position: relative;
+  }
+  .win-btn:active { background: var(--ink); }
+  .win-btn:focus-visible { outline: 1px dotted var(--ink); outline-offset: 4px; }
+  /* shrink — bar near bottom */
+  .win-shrink::after {
+    content: "";
+    position: absolute;
+    left: 2px; right: 2px; bottom: 2px;
+    height: 2px;
+    background: var(--ink);
+  }
+  .win-shrink:active::after { background: var(--paper); }
+  /* expand — inner square */
+  .win-expand::after {
+    content: "";
+    position: absolute;
+    inset: 2px;
+    border: 1px solid var(--ink);
+  }
+  .win-expand:active::after { border-color: var(--paper); }
+
+  .titlebar .title {
+    position: absolute; left: 50%; transform: translateX(-50%);
+    top: 0; bottom: 1px; height: auto;
+    display: flex; align-items: center;
+    background: var(--paper);
+    padding: 0 9px;
+    font-size: 14px; white-space: nowrap;
+  }
+  .win-body { padding: var(--win-pad); }
+  .row { display: flex; align-items: flex-start; gap: 14px; }
+  .row + .row { margin-top: var(--row-gap); }
+  .row .ic { flex: 0 0 var(--icon-col); display:flex; justify-content:center; padding-top: 2px; }
+  .row b { font-weight: normal; } /* Chicago has one weight; labels read bold natively */
+  .win-sep { border: 0; border-top: 1px solid var(--ink); margin: 20px 0; }
+  .keycap {
+    display: inline-block; vertical-align: -3px;
+    border: 1px solid var(--ink);
+    box-shadow: 1px 1px 0 var(--ink);
+    padding: 0 4px; font-size: 11px; line-height: 14px;
+    background: var(--paper);
+  }
+
+  /* focus ring for windows */
+  .window { z-index: 10; }
+  .window.focused { z-index: 100; }
+
+  /* ============================================================
+     Component 07 — app windows (coded chrome + swappable stage)
+     ============================================================ */
+  .app-win .app-body {
+    padding: 10px;
+  }
+  .app-stage {
+    border: 1px solid var(--ink);
+    background: var(--paper);
+    overflow: hidden;
+  }
+  .app-stage > img {
+    display: block;
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+    pointer-events: none;
+    user-select: none;
+    -webkit-user-drag: none;
+  }
+  .app-win.maximized {
+    width: min(720px, calc(100vw / var(--ui-scale) - 24px));
+  }
+  .app-win.minimized .app-body {
+    display: none;
+  }
+
+  /* ============================================================
+     Component 05 — desktop department shortcuts (draggable)
+     ============================================================ */
+  .icons { position: fixed; inset: 0; z-index: 5; pointer-events: none; }
+  .dicon {
+    position: absolute;
+    pointer-events: auto;
+    appearance: none; background: none; border: 0;
+    width: 104px; padding: 4px 2px;
+    display: flex; flex-direction: column; align-items: center; gap: 4px;
+    font: inherit; color: var(--paper);
+    cursor: default;
+    user-select: none; -webkit-user-select: none; touch-action: none;
+  }
+  .dicon:focus-visible { outline: 1px dotted var(--paper); outline-offset: 1px; }
+  .dicon-art {
+    margin: 0;
+    font-family: 'Courier New', 'Courier', monospace;
+    font-size: 10px; line-height: 10px; letter-spacing: 0;
+    white-space: pre; text-align: left;
+    color: var(--paper);
+    text-shadow:
+      1px 1px 0 var(--ink), -1px 1px 0 var(--ink),
+      1px -1px 0 var(--ink), -1px -1px 0 var(--ink);
+  }
+  .dicon-img {
+    display: block;
+    width: 64px; height: 64px;
+    object-fit: contain;
+    image-rendering: pixelated;
+    image-rendering: crisp-edges;
+    pointer-events: none;
+  }
+  .dicon.selected .dicon-img {
+    outline: 1px dotted var(--paper);
+    outline-offset: 2px;
+  }
+  .dicon-label {
+    background: var(--paper); color: var(--ink);
+    font-size: 12px; line-height: 1.2;
+    padding: 2px 5px;                /* slightly wider than the text */
+    text-align: center;
+    max-width: 92px;
+    box-shadow: 1px 1px 0 var(--ink);
+  }
+  .dicon.selected .dicon-label {
+    background: var(--ink); color: var(--paper);
+    outline: 1px dotted var(--paper); outline-offset: -3px;
+  }
+  .dicon.dragging { opacity: .85; }
+  .dicon.dragging .dicon-label { box-shadow: 2px 2px 0 var(--ink); }
+
+  /* ============================================================
+     Component 06 — department window internals (dir listings)
+     ============================================================ */
+  .win-path {
+    border: 1px solid var(--ink);
+    background: var(--paper);
+    font-size: 11px; letter-spacing: .04em;
+    padding: 2px 7px; margin: 0 0 14px;
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+    user-select: none;
+  }
+  .dir { list-style: none; margin: 0; padding: 0; }
+  .dir li {
+    display: flex; align-items: center; gap: 8px;
+    padding: 3px 2px; cursor: default;
+  }
+  .dir li:hover { background: var(--ink); color: var(--paper); }
+  .dir li:hover a { color: var(--paper); }
+  .dir .fico { width: 14px; height: 12px; flex: 0 0 auto; }
+  .dir .fname { white-space: nowrap; }
+  .dir .dots { flex: 1; border-bottom: 1px dotted currentColor; transform: translateY(-3px); min-width: 12px; }
+  .dir .meta { white-space: nowrap; font-size: 11px; }
+  .dir li.locked { color: var(--disabled-ink); }
+  .dir li.locked:hover { background: none; color: var(--disabled-ink); }
+  .win-note { margin: 16px 0 0; font-size: 12px; }
+  .win-status {
+    border-top: 1px solid var(--ink);
+    padding: 4px 8px;
+    font-size: 11px;
+    display: flex; justify-content: space-between; gap: 12px;
+    user-select: none;
+  }
+
+  @media (max-width: 480px) {
+    :root { --win-pad: 16px; }
+    .menu-item { padding: 0 9px; font-size: 13px; }
+  }
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; animation: none !important; }
+  }
