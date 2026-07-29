@@ -1,6 +1,5 @@
   /* ============================================================
-     bhlkg design tokens — extracted from the reference site
-     (classic 1-bit desktop language; values marked in spec doc)
+     bhlkg design tokens 
      ============================================================ */
   :root {
     --ink: #000000;
@@ -94,7 +93,6 @@
   }
 
   /* ---- CRT monitor: static desktop-preview.png + centered logo ---- */
-  /* TEMP DEBUG: hide/opacity rules disabled so the forced center test box can show */
   #monitor-preview {
     position: absolute;
     left: 0;
@@ -104,21 +102,19 @@
     z-index: 1;
     overflow: hidden;
     pointer-events: none; /* clicks pass through to Spline MonitorScreen */
-    /* opacity: 0; */
-    /* visibility: hidden; */
+    opacity: 0;
+    visibility: hidden;
   }
   #monitor-preview.is-ready {
-    /* opacity: 1; */
-    /* visibility: visible; */
+    opacity: 1;
+    visibility: visible;
   }
-  /* Hide only during enter transition / while desktop is up; restored on Exit */
-  /*
+  /* Hide during enter transition / while desktop is up; restored on Exit */
   body.desktop-active #monitor-preview,
   #spline-landing.is-exiting #monitor-preview {
     opacity: 0;
     visibility: hidden;
   }
-  */
 
   .monitor-preview-clip {
     position: relative;
@@ -451,22 +447,28 @@
      Component 07 — app windows (coded chrome + swappable stage)
      ============================================================ */
   .app-win .app-body {
-    padding: 10px;
+    padding: 0; /* flush: no gap between window chrome and stage image */
   }
   .app-stage {
-    border: 1px solid var(--ink);
-    background: var(--paper);
+    border: 0;
+    background: transparent;
     overflow: hidden;
+    line-height: 0; /* remove inline-img baseline gap */
   }
   .app-stage > img {
     display: block;
     width: 100%;
     height: auto;
+    vertical-align: top;
     object-fit: contain;
     pointer-events: none;
     user-select: none;
     -webkit-user-drag: none;
   }
+  /* Size each app window to its SVG aspect so the frame hugs the image */
+  #win-video.app-win { width: 440px; }
+  #win-fashion-app.app-win { width: 383px; }
+  #win-magazine-app.app-win { width: 414px; }
   .app-win.maximized {
     width: min(720px, calc(100vw / var(--ui-scale) - 24px));
   }

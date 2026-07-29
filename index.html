@@ -337,7 +337,7 @@
       </div>
       <div class="win-body app-body">
         <div class="app-stage">
-          <img src="images/bhlkg_video%20frame_bkwh.png" alt="" draggable="false" />
+          <img src="images/video-frame.png" alt="" draggable="false" />
         </div>
       </div>
     </section>
@@ -354,7 +354,7 @@
       </div>
       <div class="win-body app-body">
         <div class="app-stage">
-          <img src="images/fashion%20frame.png" alt="" draggable="false" />
+          <img src="images/fashion-frame.png" alt="" draggable="false" />
         </div>
       </div>
     </section>
@@ -371,7 +371,7 @@
       </div>
       <div class="win-body app-body">
         <div class="app-stage">
-          <img src="images/magazine%20frame.png" alt="" draggable="false" />
+          <img src="images/magazine-frame.png" alt="" draggable="false" />
         </div>
       </div>
     </section>
@@ -392,43 +392,6 @@
   </main>
   </div>
 
-<script>
-/* TEMP DEBUG: prove #monitor-preview can paint — remove after verification */
-document.addEventListener('DOMContentLoaded', () => {
-  const preview = document.getElementById('monitor-preview');
-  console.log('[monitor-preview] exists:', preview);
-  console.log('[monitor-preview] parent:', preview?.parentElement);
-
-  if (!preview) {
-    console.error('[monitor-preview] element missing from DOM');
-    return;
-  }
-
-  document.body.appendChild(preview);
-
-  preview.innerHTML =
-    '<div style="color:white;font-size:32px;padding:20px;font-family:sans-serif">MONITOR PREVIEW TEST</div>';
-
-  Object.assign(preview.style, {
-    position: 'fixed',
-    left: '50%',
-    top: '50%',
-    width: '320px',
-    height: '220px',
-    transform: 'translate(-50%, -50%)',
-    zIndex: '2147483647',
-    display: 'block',
-    opacity: '1',
-    visibility: 'visible',
-    background: 'rgba(255, 0, 0, 0.6)',
-    border: '6px solid red',
-    pointerEvents: 'none',
-  });
-
-  console.log('[monitor-preview] rect:', preview.getBoundingClientRect());
-  console.log('[monitor-preview] inline style:', preview.getAttribute('style'));
-});
-</script>
 <script src="app.js" defer></script>
 <script type="module" src="spline-scene.js"></script>
 </body>

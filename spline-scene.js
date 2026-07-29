@@ -7,9 +7,7 @@ const launchBtn = document.getElementById('launch-bhlkg-btn');
 const exitBtn = document.getElementById('exit-btn');
 const monitorPreview = document.getElementById('monitor-preview');
 
-/* TEMP: disable all monitor-preview hide / reposition / sync until the center test box is visible */
-const DEBUG_MONITOR_PREVIEW_BOX = true;
-
+const SCENE_URL = 'https://prod.spline.design/izlvrcpPGTlAV-dY/scene.splinecode';
 const ENTER_REVEAL_DELAY = 920;
 const EXIT_REVEAL_DELAY = 700;
 /* Inset so the image stays inside the CRT glass, not on the bezel */
@@ -21,15 +19,15 @@ let onDesktop = false;
 let desktopBooted = false;
 let previewRaf = 0;
 
-/* Subtle orbit: keep initial framing, no full spin / no through-desk */
+/* Subtle orbit: keep initial framing, no full spin / no through-geometry */
 const CAM = {
-  yawDeg: 28,       /* ± horizontal from initial view */
-  pitchUpDeg: 16,   /* don't climb above the wall */
-  pitchDownDeg: 18, /* don't sink below the desk */
-  zoomIn: 1.32,     /* max closer than initial (factor on zoom) */
-  zoomOut: 0.78,    /* max farther than initial */
-  rotateSpeed: 0.6,
-  zoomSpeed: 0.85,
+  yawDeg: 32,       /* ± horizontal from initial view */
+  pitchUpDeg: 18,   /* don't climb above the wall */
+  pitchDownDeg: 42, /* allow looking down at desk / monitor */
+  zoomIn: 1.0,      /* lock zoom-in at home distance — prevents 穿模 */
+  zoomOut: 0.82,    /* mild zoom-out only */
+  rotateSpeed: 0.65,
+  zoomSpeed: 0.55,
 };
 
 function degToRad(d) {
@@ -72,18 +70,23 @@ function constrainLandingCamera(application) {
     orbit.rotationRangeFactor.set(yaw, (pitchUp + pitchDown) / 2);
   }
 
-  /* Zoom relative to the initial distance — prevent clip-through & empty space */
+  /* Zoom relative to home distance — lock zoom-in so camera can't 穿模 */
   const currentZoom = 1000 / Math.max(radius0, 1e-3);
   orbit.zoomLimitsEnabled = true;
   orbit.minZoom = currentZoom * CAM.zoomOut;
-  orbit.maxZoom = currentZoom * CAM.zoomIn;
-  orbit.minDistance = 1000 / orbit.maxZoom;
+  orbit.maxZoom = currentZoom * CAM.zoomIn; /* === home zoom when zoomIn is 1 */
+  orbit.minDistance = radius0; /* never closer than the initial camera */
   orbit.maxDistance = Math.max(orbit.minDistance, 1000 / orbit.minZoom);
+
+  /* Hard-clamp current radius in case load left us too close */
+  if (orbit.spherical.radius < orbit.minDistance) {
+    orbit.spherical.radius = orbit.minDistance;
+  }
 
   orbit.enablePan = false;
   orbit.panLimitsMode = 0;
   orbit.enableRotate = true;
-  orbit.enableZoom = true;
+  orbit.enableZoom = CAM.zoomOut < CAM.zoomIn; /* zoom-out only when locked in */
   orbit.enableDamping = true;
   orbit.rotateSpeed = CAM.rotateSpeed;
   orbit.zoomSpeed = CAM.zoomSpeed;
@@ -137,6 +140,35 @@ function isLaunchObject(name) {
   return n === 'launch bhlkg' || n === 'launchbhlkg' || n === 'launch';
 }
 
+function normalizeObjectName(name) {
+  return (name || '').trim().toLowerCase().replace(/[\s-]+/g, '_');
+}
+
+function isMonitorObject(name) {
+  const n = normalizeObjectName(name);
+  if (!n) return false;
+  /* Exact new names + any object whose name contains monitor/screen */
+  return (
+    n === 'monitorscreen_new'
+    || n === 'monitor_new'
+    || n === 'monitorscreen'
+    || n === 'monitor'
+    || (n.includes('monitor') && n.includes('screen'))
+    || n.includes('monitor_new')
+    || n.includes('monitorscreen_new')
+  );
+}
+
+function findNamedObject(application, names) {
+  for (const name of names) {
+    const obj =
+      application?.findObjectByName?.(name)
+      || application?._scene?.getObjectByName?.(name);
+    if (obj) return obj;
+  }
+  return null;
+}
+
 function resetLandingVisualState() {
   if (!landing) return;
   landing.classList.remove('is-exiting', 'is-parked', 'is-disposed');
@@ -145,10 +177,16 @@ function resetLandingVisualState() {
   void landing.offsetWidth;
 }
 
-/* ---------- Monitor static image preview (clipped to CRT MonitorScreen) ---------- */
+/* ---------- Monitor static image preview (clipped to CRT screen mesh) ---------- */
 
 function getMonitorScreenMesh(application) {
-  return application?._scene?.getObjectByName?.('MonitorScreen') || null;
+  return findNamedObject(application, [
+    'monitorscreen_new',
+    'MonitorScreen_new',
+    'monitor_new',
+    'Monitor_new',
+    'MonitorScreen',
+  ]);
 }
 
 function getSplineCamera(application) {
@@ -230,7 +268,6 @@ function projectMonitorScreenRect(application) {
 }
 
 function layoutMonitorPreview(rect) {
-  if (DEBUG_MONITOR_PREVIEW_BOX) return;
   if (!monitorPreview || !rect) return;
 
   monitorPreview.style.left = `${rect.left}px`;
@@ -241,17 +278,12 @@ function layoutMonitorPreview(rect) {
 }
 
 function syncMonitorPreview() {
-  if (DEBUG_MONITOR_PREVIEW_BOX) return;
   if (!app || onDesktop || transitioning) return;
   const rect = projectMonitorScreenRect(app);
   if (rect) layoutMonitorPreview(rect);
 }
 
 function startMonitorPreviewSync() {
-  if (DEBUG_MONITOR_PREVIEW_BOX) {
-    console.info('[monitor-preview] sync disabled (DEBUG_MONITOR_PREVIEW_BOX)');
-    return;
-  }
   stopMonitorPreviewSync();
   const tick = () => {
     syncMonitorPreview();
@@ -306,7 +338,9 @@ function enterDesktop(source = 'unknown') {
     }
 
     if (!desktopBooted) {
-      document.dispatchEvent(new CustomEvent('bhlkg:enter-desktop'));
+      document.dispatchEvent(
+        new CustomEvent('bhlkg:enter-desktop', { bubbles: true })
+      );
       desktopBooted = true;
     }
 
@@ -362,17 +396,23 @@ async function initSpline() {
   app = new Application(canvas, { renderMode: 'continuous' });
 
   try {
-    await app.load('https://prod.spline.design/izlvrcpPGTlAV-dY/scene.splinecode');
-    console.info('[spline] scene loaded');
+    await app.load(SCENE_URL);
+    console.info('[spline] scene loaded', SCENE_URL);
 
     /* Constrain orbit after load so the initial camera pose stays the home view */
     constrainLandingCamera(app);
 
-    const screen = app.findObjectByName('MonitorScreen');
+    const screen = findNamedObject(app, [
+      'monitorscreen_new',
+      'MonitorScreen_new',
+      'monitor_new',
+      'Monitor_new',
+      'MonitorScreen',
+    ]);
     if (!screen) {
-      console.warn('[spline] object "MonitorScreen" not found in scene');
+      console.warn('[spline] monitor_new / monitorscreen_new not found in scene');
     } else {
-      console.info('[spline] MonitorScreen found', { uuid: screen.uuid, name: screen.name });
+      console.info('[spline] monitor target found', { uuid: screen.uuid, name: screen.name });
     }
 
     startMonitorPreviewSync();
@@ -394,18 +434,18 @@ async function initSpline() {
 
     app.addEventListener('mouseHover', (event) => {
       if (transitioning || onDesktop) return;
-      const hovering = event.target?.name === 'MonitorScreen';
+      const hovering = isMonitorObject(event.target?.name);
       setMonitorCursor(hovering);
-      if (hovering) console.log('[spline] hovering MonitorScreen');
+      if (hovering) console.log('[spline] hovering monitor:', event.target?.name);
     });
 
     app.addEventListener('mouseDown', (event) => {
-      console.log('[spline] clicked object:', event.target?.name);
       const name = event.target?.name;
+      console.log('[spline] clicked object:', name);
 
-      if (name === 'MonitorScreen') {
-        console.log('[spline] MonitorScreen clicked');
-        enterDesktop('MonitorScreen');
+      if (isMonitorObject(name)) {
+        console.log('[spline] monitor clicked:', name);
+        enterDesktop(name);
         return;
       }
 
@@ -415,7 +455,14 @@ async function initSpline() {
       }
     });
 
-    console.info('[spline] mouseDown / mouseHover listeners bound');
+    /* Also bind Spline's native mouseDown targets by name after load */
+    for (const ev of Object.values(mouseDownMap)) {
+      const targetName = ev?.target?.name;
+      if (!isMonitorObject(targetName)) continue;
+      console.info('[spline] Mouse Down wired on:', targetName);
+    }
+
+    console.info('[spline] mouseDown / mouseHover listeners bound (monitor_new / monitorscreen_new)');
   } catch (err) {
     console.error('[spline] failed to load scene', err);
   }

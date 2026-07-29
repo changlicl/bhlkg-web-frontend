@@ -283,7 +283,8 @@ function bootDesktopWindows() {
 function onEnterDesktop() {
   bootDesktopWindows();
 }
-addEventListener('bhlkg:enter-desktop', onEnterDesktop);
+/* Listen on document — spline-scene dispatches here (does not bubble to window) */
+document.addEventListener('bhlkg:enter-desktop', onEnterDesktop);
 /* If page is opened already in desktop mode (no landing), boot on load */
 addEventListener('load', () => {
   if (document.body.classList.contains('desktop-active')) bootDesktopWindows();
