@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>bhlkg — macintosh blockout</title>
+<link rel="icon" href="data:," />
+<link rel="stylesheet" href="macintosh.css" />
+<script type="importmap">
+{
+  "imports": {
+    "three": "/node_modules/three/build/three.module.js",
+    "three/addons/": "/node_modules/three/examples/jsm/"
+  }
+}
+</script>
+</head>
+<body>
+<canvas id="mac3d" aria-label="Macintosh blockout prototype"></canvas>
+
+<!-- DOM layer that sits inside the 3D CRT opening (positioned by macintosh.js) -->
+<div id="crt-html-screen" aria-hidden="true">
+  <div class="crt-desktop-preview">
+    <header class="crt-menubar">
+      <img class="crt-menubar-logo" src="/images/bhlkg%20logo.png" alt="" />
+      <span class="crt-menu-item">bhlkg</span>
+      <span class="crt-menu-item">About Us</span>
+      <span class="crt-menu-exit">Exit</span>
+    </header>
+
+    <div class="crt-icons">
+      <span class="crt-icon">
+        <img src="/images/ascii-media.png" alt="" />
+        <span class="crt-icon-label">Video</span>
+      </span>
+      <span class="crt-icon">
+        <img src="/images/ascii-fashion.png" alt="" />
+        <span class="crt-icon-label">Fashion</span>
+      </span>
+      <span class="crt-icon">
+        <img src="/images/ascii-magazine.png" alt="" />
+        <span class="crt-icon-label">Magazine</span>
+      </span>
+    </div>
+
+    <section class="crt-window">
+      <div class="crt-titlebar">
+        <span class="crt-closebox"></span>
+        <span class="crt-title">Welcome to bhlkg</span>
+      </div>
+      <div class="crt-winbody">
+        <img class="crt-window-logo" src="/images/bhlkg%20logo.svg" alt="" />
+        <p>bhlkg — blue holy lord knight god.</p>
+      </div>
+    </section>
+  </div>
+</div>
+
+<script type="module" src="macintosh.js"></script>
+</body>
+</html>

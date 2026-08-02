@@ -19,6 +19,7 @@
   },
   "homepage": "https://github.com/changlicl/bhlkg-web-frontend#readme",
   "dependencies": {
-    "@splinetool/runtime": "^1.12.98"
+    "@splinetool/runtime": "^1.12.98",
+    "three": "^0.185.1"
   }
 }

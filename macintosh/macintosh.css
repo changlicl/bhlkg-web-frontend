@@ -1,0 +1,214 @@
+/* Isolated styles for the Macintosh blockout test page.
+   Intentionally self-contained — does not import the root styles.css. */
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html,
+body {
+  width: 100%;
+  height: 100%;
+  overflow: hidden;
+  /* fallback while the scene boots; matches COLORS.background in macintosh.js */
+  background: #c7c2b8;
+}
+
+#mac3d {
+  display: block;
+  width: 100vw;
+  height: 100vh;
+}
+
+/* ============================================================
+   CRT HTML screen overlay — a real DOM layer projected onto the
+   3D CRT opening. Size, placement, and the matrix3d transform are
+   set by macintosh.js from the SCREEN_OVERLAY config; no geometry
+   values are hard-coded here.
+   Visual tokens below mirror the production desktop (styles.css):
+   ChicagoFLF, ink/paper black-and-white, striped titlebar, white
+   label chips, hard 1px shadows.
+   ============================================================ */
+
+@font-face {
+  font-family: 'ChicagoFLF';
+  src: url("../fonts/ChicagoFLF.woff") format("woff");
+  font-weight: normal;
+  font-style: normal;
+  font-display: swap;
+}
+
+#crt-html-screen {
+  position: fixed;
+  left: 0;
+  top: 0;
+  z-index: 2;
+  display: none;
+  overflow: hidden;
+  pointer-events: none;
+  transform-origin: 0 0;
+  background: #0a0a0a;
+  user-select: none;
+}
+
+#crt-html-screen.is-visible {
+  display: block;
+}
+
+.crt-desktop-preview {
+  position: absolute;
+  inset: 0;
+  font-family: 'ChicagoFLF', 'Chicago', 'Geneva', monospace;
+  color: #000;
+  letter-spacing: .02em;
+  background: url("/images/ascii-background%20replace.png") center / cover no-repeat;
+}
+
+/* subtle CRT glass feel: soft sheen + gentle corner falloff */
+.crt-desktop-preview::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(115deg, rgba(255, 255, 255, 0.14) 0%, rgba(255, 255, 255, 0.04) 26%, transparent 45%);
+  box-shadow: inset 0 0 26px rgba(0, 0, 0, 0.38);
+}
+
+/* --- menu bar (mirrors .menubar) --- */
+.crt-menubar {
+  display: flex;
+  align-items: center;
+  height: 20px;
+  padding: 0 6px 0 5px;
+  background: #fff;
+  border-bottom: 1px solid #000;
+}
+
+.crt-menubar-logo {
+  display: block;
+  width: 15px;
+  height: 11px;
+  object-fit: contain;
+  margin-right: 3px;
+}
+
+.crt-menu-item {
+  font-size: 10px;
+  padding: 0 7px;
+  line-height: 20px;
+}
+
+.crt-menu-exit {
+  font-size: 10px;
+  padding: 0 7px;
+  line-height: 20px;
+  margin-left: auto;
+}
+
+/* --- desktop icons (mirror .dicon) --- */
+.crt-icons {
+  position: absolute;
+  left: 10px;
+  top: 30px;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.crt-icon {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  width: 52px;
+}
+
+.crt-icon img {
+  display: block;
+  width: 30px;
+  height: 30px;
+  object-fit: contain;
+  image-rendering: pixelated;
+}
+
+.crt-icon-label {
+  background: #fff;
+  color: #000;
+  font-size: 8px;
+  line-height: 1.2;
+  padding: 1px 4px;
+  box-shadow: 1px 1px 0 #000;
+}
+
+/* --- System-7 window (mirrors .window / .titlebar / .closebox) --- */
+.crt-window {
+  position: absolute;
+  left: 36%;
+  top: 26%;
+  width: 58%;
+  background: #fff;
+  border: 1px solid #000;
+  box-shadow: 2px 2px 0 #000;
+}
+
+.crt-titlebar {
+  position: relative;
+  height: 16px;
+  border-bottom: 1px solid #000;
+  display: flex;
+  align-items: center;
+  padding: 4px 4px;
+  box-sizing: border-box;
+  background-color: #fff;
+  background-image:
+    linear-gradient(#000, #000),
+    linear-gradient(#000, #000),
+    linear-gradient(#000, #000);
+  background-size: 100% 1px;
+  background-position: center 25%, center 50%, center 75%;
+  background-repeat: no-repeat;
+  background-clip: content-box;
+}
+
+.crt-closebox {
+  width: 8px;
+  height: 8px;
+  background: #fff;
+  border: 1px solid #000;
+  box-shadow: 0 0 0 2px #fff;   /* white gap that breaks the stripes */
+  margin-left: 2px;
+}
+
+.crt-title {
+  position: absolute;
+  left: 50%;
+  transform: translateX(-50%);
+  background: #fff;
+  padding: 0 6px;
+  font-size: 9px;
+  line-height: 16px;
+  white-space: nowrap;
+}
+
+.crt-winbody {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  padding: 9px 10px;
+}
+
+.crt-window-logo {
+  display: block;
+  width: 30px;
+  height: 21px;
+  object-fit: contain;
+  flex: 0 0 auto;
+}
+
+.crt-winbody p {
+  margin: 0;
+  font-size: 8.5px;
+  line-height: 1.45;
+}

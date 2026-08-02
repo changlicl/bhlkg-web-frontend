@@ -324,71 +324,8 @@
       <div class="win-status"><span>inbox: 0 unread</span><span>outbox: full</span></div>
     </section>
 
-    <!-- ============ Component 07 · app windows (coded chrome, swappable stage) ============ -->
-    <section class="window ratio-scale app-win" id="win-video" data-desk="video"
-             style="left:320px; top:56px;" aria-labelledby="t-video">
-      <div class="titlebar" data-drag>
-        <div class="win-controls">
-          <button type="button" class="win-btn win-shrink" aria-label="Minimize"></button>
-          <button type="button" class="win-btn win-expand" aria-label="Expand"></button>
-          <button type="button" class="closebox" aria-label="Close window"></button>
-        </div>
-        <span class="title" id="t-video">bhlkg.mov</span>
-      </div>
-      <div class="win-body app-body">
-        <div class="app-stage">
-          <img src="images/video-frame.png" alt="" draggable="false" />
-        </div>
-      </div>
-    </section>
-
-    <section class="window ratio-scale app-win" id="win-fashion-app" data-desk="fashion"
-             style="left:160px; top:220px;" aria-labelledby="t-fashion-app">
-      <div class="titlebar" data-drag>
-        <div class="win-controls">
-          <button type="button" class="win-btn win-shrink" aria-label="Minimize"></button>
-          <button type="button" class="win-btn win-expand" aria-label="Expand"></button>
-          <button type="button" class="closebox" aria-label="Close window"></button>
-        </div>
-        <span class="title" id="t-fashion-app">Fashion</span>
-      </div>
-      <div class="win-body app-body">
-        <div class="app-stage">
-          <img src="images/fashion-frame.png" alt="" draggable="false" />
-        </div>
-      </div>
-    </section>
-
-    <section class="window ratio-scale app-win" id="win-magazine-app" data-desk="magazine"
-             style="left:560px; top:280px;" aria-labelledby="t-magazine-app">
-      <div class="titlebar" data-drag>
-        <div class="win-controls">
-          <button type="button" class="win-btn win-shrink" aria-label="Minimize"></button>
-          <button type="button" class="win-btn win-expand" aria-label="Expand"></button>
-          <button type="button" class="closebox" aria-label="Close window"></button>
-        </div>
-        <span class="title" id="t-magazine-app">Magazine</span>
-      </div>
-      <div class="win-body app-body">
-        <div class="app-stage">
-          <img src="images/magazine-frame.png" alt="" draggable="false" />
-        </div>
-      </div>
-    </section>
-
-    <section class="window ratio-scale" id="win-notification" data-desk="notification"
-             style="left:780px; top:48px;" aria-labelledby="t-notification">
-      <div class="titlebar" data-drag>
-        <button class="closebox" aria-label="Close window"></button>
-        <span class="title" id="t-notification">Notification</span>
-      </div>
-      <div class="win-body">
-        <p class="m-0">Welcome to bhlkg. Explore the latest updates.</p>
-        <div class="win-actions">
-          <button type="button" class="sys-btn" id="btn-explore" data-win="win-welcome">Explore</button>
-        </div>
-      </div>
-    </section>
+    <!-- Reusable BHLKG MacWindow instances are rendered from app.js configuration. -->
+    <div id="mac-window-root"></div>
   </main>
   </div>
 
