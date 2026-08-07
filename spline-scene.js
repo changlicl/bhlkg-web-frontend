@@ -1,4 +1,4 @@
-import { Application } from '@splinetool/runtime';
+import { Application } from 'https://unpkg.com/@splinetool/runtime@1.12.98/build/runtime.js';
 
 const landing = document.getElementById('spline-landing');
 const desktop = document.getElementById('desktop-interface');
