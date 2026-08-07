@@ -10,6 +10,11 @@
     --titlebar-h: 26px;
     --win-border: 2px;
     --win-pad: 22px;
+    --mac-titlebar-h: 42px;
+    --mac-control-size: 17px;
+    --mac-space: clamp(10px, 2vw, 18px);
+    --mac-accent: #180963;
+    --mac-selected: #1283c0;
     --row-gap: 18px;
     --icon-col: 40px;
     --shadow-step: 2px;
@@ -444,37 +449,306 @@
   .window.focused { z-index: 100; }
 
   /* ============================================================
-     Component 07 — app windows (coded chrome + swappable stage)
+     Component 07 — shared BHLKG Macintosh window system
      ============================================================ */
-  .app-win .app-body {
-    padding: 0; /* flush: no gap between window chrome and stage image */
-  }
-  .app-stage {
-    border: 0;
-    background: transparent;
+  .mac-window {
+    width: min(var(--window-width), 92vw);
+    min-width: min(280px, 92vw);
+    max-width: 760px;
+    max-height: min(78vh, 760px);
     overflow: hidden;
-    line-height: 0; /* remove inline-img baseline gap */
+    color: #111;
+    background: #fff;
+    border: 2px solid #111;
+    border-radius: 0;
+    box-shadow: none;
   }
-  .app-stage > img {
+  .window.mac-window.open {
+    display: flex;
+    flex-direction: column;
+  }
+  .mac-window--resizable {
+    resize: both;
+  }
+  .mac-window.maximized {
+    width: min(760px, 92vw);
+  }
+  .mac-titlebar {
+    position: relative;
+    height: var(--mac-titlebar-h);
+    box-sizing: border-box;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 10px;
+    overflow: hidden;
+    border-bottom: 2px solid #111;
+    background: #fff;
+    cursor: grab;
+    user-select: none;
+    touch-action: none;
+  }
+  .mac-titlebar:active { cursor: grabbing; }
+  .mac-titlebar__stripes {
+    position: absolute;
+    inset: 5px 0 auto;
+    height: 1px;
+    background: #111;
+    box-shadow:
+      0 4px 0 #111, 0 8px 0 #111, 0 12px 0 #111,
+      0 16px 0 #111, 0 20px 0 #111, 0 24px 0 #111,
+      0 28px 0 #111;
+    pointer-events: none;
+  }
+  .mac-titlebar__title {
+    position: absolute;
+    left: 50%;
+    z-index: 2;
+    transform: translateX(-50%);
+    max-width: calc(100% - 72px);
+    overflow: hidden;
+    padding: 4px 12px;
+    color: #111;
+    background: #fff;
+    font-size: 14px;
+    line-height: 1;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+  .mac-close.closebox {
+    position: relative;
+    z-index: 3;
+    flex: 0 0 auto;
+    width: var(--mac-control-size);
+    height: var(--mac-control-size);
+    margin: 0;
+    padding: 0;
+    appearance: none;
+    border: 2px solid #111;
+    border-radius: 0;
+    background: #fff;
+    box-shadow: 0 0 0 4px #fff;
+    cursor: pointer;
+  }
+  .mac-close::after {
+    content: "";
+    position: absolute;
+    inset: 3px;
+    border: 1px solid #111;
+  }
+  .mac-close:active { background: #111; }
+  .mac-close:focus-visible {
+    outline: 2px solid var(--mac-accent);
+    outline-offset: 3px;
+  }
+  .mac-window__body {
+    position: relative;
+    flex: 1 1 auto;
+    min-height: 0;
+    padding: var(--mac-space);
+    overflow: auto;
+    max-height: calc(min(78vh, 760px) - var(--mac-titlebar-h));
+    background: #fff;
+  }
+  .mac-canvas {
+    display: grid;
+    place-items: center;
+    width: min(100%, var(--stage-width, 100%));
+    height: var(--stage-height, auto);
+    margin: 0 auto;
+    overflow: hidden;
+    box-sizing: border-box;
+    border: 2px solid #111;
+    background: #fff;
+  }
+  .mac-video-canvas { aspect-ratio: 16 / 9; }
+  .mac-editorial-canvas { aspect-ratio: 4 / 3; }
+  .mac-placeholder {
     display: block;
-    width: 100%;
-    height: auto;
-    vertical-align: top;
-    object-fit: contain;
+    width: var(--image-width, min(62%, 280px));
+    height: var(--image-height, min(62%, 220px));
+    max-width: 100%;
+    max-height: 100%;
+    padding: clamp(8px, 2vw, 20px);
+    box-sizing: border-box;
     pointer-events: none;
     user-select: none;
     -webkit-user-drag: none;
   }
-  /* Size each app window to its SVG aspect so the frame hugs the image */
-  #win-video.app-win { width: 440px; }
-  #win-fashion-app.app-win { width: 383px; }
-  #win-magazine-app.app-win { width: 414px; }
-  .app-win.maximized {
-    width: min(720px, calc(100vw / var(--ui-scale) - 24px));
+  .mac-window--magazine .mac-placeholder {
+    justify-self: end;
+    align-self: end;
+    padding: 0;
   }
-  .app-win.minimized .app-body {
-    display: none;
+  .mac-transport,
+  .mac-page-rail,
+  .mac-swatch-rail,
+  .mac-archive-strip {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    min-height: 28px;
+    box-sizing: border-box;
+    margin-top: 10px;
+    font-size: 11px;
   }
+  .mac-transport__buttons {
+    display: flex;
+    gap: 4px;
+  }
+  .mac-transport__button {
+    position: relative;
+    width: 18px;
+    height: 18px;
+    box-sizing: border-box;
+    border: 1px solid #111;
+    background: #fff;
+  }
+  .mac-transport__play::after {
+    content: "";
+    position: absolute;
+    left: 6px;
+    top: 4px;
+    border-top: 4px solid transparent;
+    border-bottom: 4px solid transparent;
+    border-left: 6px solid #111;
+  }
+  .mac-transport__pause::after {
+    content: "Ⅱ";
+    position: absolute;
+    inset: 0;
+    display: grid;
+    place-items: center;
+    font-size: 10px;
+  }
+  .mac-transport__stop::after {
+    content: "";
+    position: absolute;
+    inset: 5px;
+    background: #111;
+  }
+  .mac-rail {
+    position: relative;
+    flex: 1;
+    height: 5px;
+    border: 1px solid #111;
+    background: #fff;
+  }
+  .mac-rail span {
+    position: absolute;
+    left: 0;
+    top: 0;
+    bottom: 0;
+    width: 38%;
+    background: #111;
+  }
+  .mac-volume {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    width: 25%;
+    min-width: 78px;
+  }
+  .mac-archive-strip {
+    justify-content: space-between;
+    min-height: auto;
+    margin: 0 0 8px;
+    padding-bottom: 6px;
+    border-bottom: 1px solid #111;
+    letter-spacing: .08em;
+  }
+  .mac-page-rail { margin-bottom: -2px; }
+  .mac-fashion-layout {
+    display: inline-grid;
+    grid-template-columns: 34px var(--stage-width, minmax(0, 1fr));
+    gap: 8px;
+    max-width: 100%;
+    margin: 0 auto;
+  }
+  .mac-tool-rail {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 7px;
+    padding: 7px 0;
+    border: 1px solid #111;
+  }
+  .mac-tool-rail span {
+    display: grid;
+    place-items: center;
+    width: 18px;
+    height: 18px;
+    border-bottom: 1px solid #111;
+  }
+  .mac-swatch-rail span {
+    width: 16px;
+    height: 16px;
+    box-sizing: border-box;
+    border: 1px solid #111;
+    background: #fff;
+  }
+  .mac-swatch-rail span:nth-child(2) { background: #111; }
+  .mac-swatch-rail span:nth-child(3) {
+    background: #fff;
+    box-shadow: inset 0 0 0 4px #111;
+  }
+  .mac-swatch-rail span:nth-child(4) {
+    border: 4px double #111;
+  }
+  .mac-swatch-rail b {
+    margin-left: auto;
+    font-weight: normal;
+  }
+  .mac-notification p {
+    margin: 0;
+    font-size: 13px;
+    line-height: 1.55;
+  }
+  .mac-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+    margin-top: 18px;
+  }
+  .mac-action {
+    min-width: 82px;
+    padding: 6px 12px;
+    border: 2px solid #111;
+    border-radius: 0;
+    color: #111;
+    background: #fff;
+    font: inherit;
+    cursor: pointer;
+  }
+  .mac-action:active {
+    color: #fff;
+    background: #111;
+  }
+  .mac-action:focus-visible {
+    outline: 2px solid var(--mac-accent);
+    outline-offset: 2px;
+  }
+  .mac-resize-grip {
+    position: absolute;
+    right: 3px;
+    bottom: 3px;
+    width: 13px;
+    height: 13px;
+    pointer-events: none;
+  }
+  .mac-resize-grip::before {
+    content: "";
+    position: absolute;
+    right: 0;
+    bottom: 0;
+    width: 2px;
+    height: 2px;
+    background: #111;
+    box-shadow:
+      -4px 0 0 #111, 0 -4px 0 #111,
+      -8px 0 0 #111, -4px -4px 0 #111, 0 -8px 0 #111;
+  }
+  .mac-window:not(.mac-window--resizable) .mac-resize-grip { display: none; }
 
   /* ============================================================
      Component 05 — desktop department shortcuts (draggable)
@@ -561,9 +835,62 @@
     user-select: none;
   }
 
+  @media (max-width: 760px) {
+    :root { --mac-titlebar-h: 34px; }
+    body.desktop-active,
+    body.desktop-active #desktop-interface {
+      overflow-y: auto;
+      overflow-x: hidden;
+    }
+    #mac-window-root {
+      position: relative;
+      z-index: 8;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 18px;
+      width: 100%;
+      box-sizing: border-box;
+      padding: 46px 0 40px;
+      pointer-events: none;
+    }
+    #mac-window-root .mac-window.open {
+      position: relative !important;
+      left: auto !important;
+      top: auto !important;
+      width: min(92vw, 620px);
+      max-height: min(78vh, 760px);
+      resize: none;
+      pointer-events: auto;
+    }
+    .mac-titlebar { cursor: default; }
+    .mac-titlebar:active { cursor: default; }
+  }
   @media (max-width: 480px) {
-    :root { --win-pad: 16px; }
+    :root {
+      --win-pad: 16px;
+      --mac-control-size: 14px;
+      --mac-space: 10px;
+    }
     .menu-item { padding: 0 9px; font-size: 13px; }
+    .mac-titlebar { padding-inline: 8px; }
+    .mac-titlebar__title {
+      max-width: calc(100% - 82px);
+      padding-inline: 8px;
+      font-size: 13px;
+    }
+    .mac-titlebar__stripes {
+      inset: 4px 0 auto;
+      box-shadow:
+        0 4px 0 #111, 0 8px 0 #111, 0 12px 0 #111,
+        0 16px 0 #111, 0 20px 0 #111, 0 24px 0 #111;
+    }
+    .mac-volume { display: none; }
+    .mac-fashion-layout {
+      grid-template-columns: 28px minmax(0, 1fr);
+      gap: 6px;
+    }
+    .mac-tool-rail { gap: 4px; }
   }
   @media (prefers-reduced-motion: reduce) {
     * { transition: none !important; animation: none !important; }

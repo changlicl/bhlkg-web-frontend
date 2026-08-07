@@ -1,34 +1,146 @@
-/* ------- desktop window registry (reusable, no per-icon hardcoding) ------- */
-const desktopWindows = {
+/* ------- reusable BHLKG MacWindow registry + centralized content ------- */
+const windowContent = {
   video: {
     id: 'win-video',
     icon: 'ico-video',
+    title: 'bhlkg.mov',
+    image: 'images/bhlkg logo.svg',
+    fit: 'contain',
+    alt: 'BHLKG video placeholder',
+    width: '410px',
+    stageWidth: '360px',
+    stageHeight: '210px',
+    imageWidth: '280px',
+    imageHeight: '180px',
+    resizable: true,
     defaultOpen: true,
-    /* upper-middle — fractions of the viewport */
     defaultPosition: { x: 0.28, y: 0.08 },
   },
   fashion: {
     id: 'win-fashion-app',
     icon: 'ico-fashion',
+    title: 'Fashion',
+    image: 'images/ascii_fashion_icon.svg',
+    fit: 'contain',
+    alt: 'Fashion placeholder',
+    width: '420px',
+    stageWidth: '330px',
+    stageHeight: '245px',
+    imageWidth: '280px',
+    imageHeight: '220px',
+    resizable: true,
     defaultOpen: true,
-    /* left / lower-left */
     defaultPosition: { x: 0.15, y: 0.30 },
   },
   magazine: {
     id: 'win-magazine-app',
     icon: 'ico-magazine',
+    title: 'Magazine',
+    image: 'images/ascii_magazine_icon.svg',
+    fit: 'contain',
+    alt: 'Magazine placeholder',
+    width: '350px',
+    stageWidth: '300px',
+    stageHeight: '230px',
+    imageWidth: '292px',
+    imageHeight: '222px',
+    resizable: true,
     defaultOpen: true,
-    /* right / lower-right */
     defaultPosition: { x: 0.50, y: 0.34 },
   },
   notification: {
     id: 'win-notification',
     icon: null,
+    title: 'Notification',
+    width: '360px',
+    resizable: false,
     defaultOpen: true,
-    /* upper-right */
     defaultPosition: { x: 0.68, y: 0.07 },
   },
 };
+
+function macWindowBody(variant, config) {
+  if (variant === 'notification') {
+    return `
+      <div class="mac-notification">
+        <p>Welcome to bhlkg. New work and studio updates are ready to explore.</p>
+        <div class="mac-actions">
+          <button type="button" class="mac-action" id="btn-explore" data-win="win-welcome">Explore</button>
+          <button type="button" class="mac-action" data-close-window>Later</button>
+        </div>
+      </div>`;
+  }
+
+  const image = `
+    <img class="mac-placeholder" src="${config.image}" alt="${config.alt}"
+         style="object-fit:${config.fit}" draggable="false" />`;
+
+  if (variant === 'video') {
+    return `
+      <div class="mac-canvas mac-video-canvas">${image}</div>
+      <div class="mac-transport" aria-label="Video transport placeholder">
+        <div class="mac-transport__buttons" aria-hidden="true">
+          <span class="mac-transport__button mac-transport__play"></span>
+          <span class="mac-transport__button mac-transport__pause"></span>
+          <span class="mac-transport__button mac-transport__stop"></span>
+        </div>
+        <div class="mac-rail"><span></span></div>
+        <div class="mac-volume" aria-hidden="true"><span>◖</span><div class="mac-rail"><span></span></div></div>
+      </div>`;
+  }
+
+  if (variant === 'magazine') {
+    return `
+      <div class="mac-archive-strip"><span>BHLKG / ARCHIVE</span><span>INDEX 001</span></div>
+      <div class="mac-canvas mac-editorial-canvas">${image}</div>
+      <div class="mac-page-rail"><span>01</span><div class="mac-rail"><span></span></div><span>12</span></div>`;
+  }
+
+  return `
+    <div class="mac-fashion-layout">
+      <div class="mac-tool-rail" aria-hidden="true">
+        <span>+</span><span>◇</span><span>╱</span><span>□</span>
+      </div>
+      <div class="mac-canvas mac-editorial-canvas">${image}</div>
+    </div>
+    <div class="mac-swatch-rail" aria-hidden="true">
+      <span></span><span></span><span></span><span></span><b>LOOK 001 / MONO</b>
+    </div>`;
+}
+
+function MacWindow(variant, config) {
+  const resizeClass = config.resizable ? ' mac-window--resizable' : '';
+  const sizeVars = [
+    `--window-width:${config.width}`,
+    config.stageWidth ? `--stage-width:${config.stageWidth}` : '',
+    config.stageHeight ? `--stage-height:${config.stageHeight}` : '',
+    config.imageWidth ? `--image-width:${config.imageWidth}` : '',
+    config.imageHeight ? `--image-height:${config.imageHeight}` : '',
+  ].filter(Boolean).join(';');
+
+  return `
+    <article class="window mac-window mac-window--${variant}${resizeClass}"
+             id="${config.id}" data-desk="${variant}"
+             style="${sizeVars}"
+             aria-labelledby="title-${variant}">
+      <header class="mac-titlebar" data-drag>
+        <button type="button" class="mac-close closebox" aria-label="Close ${config.title} window"></button>
+        <div class="mac-titlebar__stripes" aria-hidden="true"></div>
+        <div class="mac-titlebar__title" id="title-${variant}">${config.title}</div>
+      </header>
+      <section class="mac-window__body">${macWindowBody(variant, config)}</section>
+      <div class="mac-resize-grip" aria-hidden="true"></div>
+    </article>`;
+}
+
+const macWindowRoot = document.getElementById('mac-window-root');
+if (macWindowRoot) {
+  macWindowRoot.innerHTML = Object.entries(windowContent)
+    .map(([variant, config]) => MacWindow(variant, config))
+    .join('');
+}
+
+const desktopWindows = windowContent;
 
 /* ------- tiny window manager: focus, close, drag (pointer events) ------- */
 const wins = [...document.querySelectorAll('.window')];
@@ -100,6 +212,7 @@ function closeWin(w) {
 }
 
 function clampWin(w) {
+  if (innerWidth <= 760 && w.classList.contains('mac-window')) return;
   const r = w.getBoundingClientRect();
   const mb = 26, pad = 6;
   let x = Math.min(Math.max(parseFloat(w.style.left) || 0, pad), Math.max(pad, innerWidth - r.width - pad));
@@ -124,7 +237,7 @@ function shrinkWin(w) {
 
 function bindWindow(w) {
   w.addEventListener('pointerdown', e => {
-    if (e.target.closest('.closebox, .win-btn')) return;
+    if (e.target.closest('.closebox, .win-btn, [data-close-window]')) return;
     focusWin(w);
   });
   const close = w.querySelector('.closebox');
@@ -138,6 +251,13 @@ function bindWindow(w) {
     close.addEventListener('pointerup', doClose);
     close.addEventListener('click', doClose);
   }
+  w.querySelectorAll('[data-close-window]').forEach(button => {
+    button.addEventListener('click', e => {
+      e.preventDefault();
+      e.stopPropagation();
+      closeWin(w);
+    });
+  });
   const shrink = w.querySelector('.win-shrink');
   if (shrink) {
     const doShrink = e => {
@@ -163,6 +283,7 @@ function bindWindow(w) {
   const bar = w.querySelector('[data-drag]');
   if (!bar) return;
   bar.addEventListener('pointerdown', e => {
+    if (innerWidth <= 760 && w.classList.contains('mac-window')) return;
     if (e.target.closest('.closebox, .win-btn')) return;
     e.preventDefault();
     focusWin(w);
