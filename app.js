@@ -7,7 +7,11 @@ const windowContent = {
     image: 'images/bhlkg logo.svg',
     fit: 'contain',
     alt: 'BHLKG video placeholder',
-    width: '640px',
+    width: '410px',
+    stageWidth: '360px',
+    stageHeight: '210px',
+    imageWidth: '280px',
+    imageHeight: '180px',
     resizable: true,
     defaultOpen: true,
     defaultPosition: { x: 0.28, y: 0.08 },
@@ -19,7 +23,11 @@ const windowContent = {
     image: 'images/ascii_fashion_icon.svg',
     fit: 'contain',
     alt: 'Fashion placeholder',
-    width: '520px',
+    width: '420px',
+    stageWidth: '330px',
+    stageHeight: '245px',
+    imageWidth: '280px',
+    imageHeight: '220px',
     resizable: true,
     defaultOpen: true,
     defaultPosition: { x: 0.15, y: 0.30 },
@@ -31,7 +39,11 @@ const windowContent = {
     image: 'images/ascii_magazine_icon.svg',
     fit: 'contain',
     alt: 'Magazine placeholder',
-    width: '540px',
+    width: '350px',
+    stageWidth: '300px',
+    stageHeight: '230px',
+    imageWidth: '292px',
+    imageHeight: '222px',
     resizable: true,
     defaultOpen: true,
     defaultPosition: { x: 0.50, y: 0.34 },
@@ -98,16 +110,23 @@ function macWindowBody(variant, config) {
 
 function MacWindow(variant, config) {
   const resizeClass = config.resizable ? ' mac-window--resizable' : '';
+  const sizeVars = [
+    `--window-width:${config.width}`,
+    config.stageWidth ? `--stage-width:${config.stageWidth}` : '',
+    config.stageHeight ? `--stage-height:${config.stageHeight}` : '',
+    config.imageWidth ? `--image-width:${config.imageWidth}` : '',
+    config.imageHeight ? `--image-height:${config.imageHeight}` : '',
+  ].filter(Boolean).join(';');
+
   return `
     <article class="window mac-window mac-window--${variant}${resizeClass}"
              id="${config.id}" data-desk="${variant}"
-             style="--window-width:${config.width}"
+             style="${sizeVars}"
              aria-labelledby="title-${variant}">
       <header class="mac-titlebar" data-drag>
         <button type="button" class="mac-close closebox" aria-label="Close ${config.title} window"></button>
         <div class="mac-titlebar__stripes" aria-hidden="true"></div>
         <div class="mac-titlebar__title" id="title-${variant}">${config.title}</div>
-        <button type="button" class="mac-zoom win-btn win-expand" aria-label="Expand ${config.title} window"></button>
       </header>
       <section class="mac-window__body">${macWindowBody(variant, config)}</section>
       <div class="mac-resize-grip" aria-hidden="true"></div>

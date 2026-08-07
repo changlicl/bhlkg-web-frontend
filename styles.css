@@ -505,7 +505,7 @@
     left: 50%;
     z-index: 2;
     transform: translateX(-50%);
-    max-width: calc(100% - 100px);
+    max-width: calc(100% - 72px);
     overflow: hidden;
     padding: 4px 12px;
     color: #111;
@@ -515,8 +515,7 @@
     text-overflow: ellipsis;
     white-space: nowrap;
   }
-  .mac-close.closebox,
-  .mac-zoom.win-btn {
+  .mac-close.closebox {
     position: relative;
     z-index: 3;
     flex: 0 0 auto;
@@ -537,19 +536,8 @@
     inset: 3px;
     border: 1px solid #111;
   }
-  .mac-zoom::after {
-    content: "";
-    position: absolute;
-    inset: 2px;
-    border-top: 2px solid #111;
-    border-left: 1px solid #111;
-    border-right: 1px solid #111;
-    border-bottom: 1px solid #111;
-  }
-  .mac-close:active,
-  .mac-zoom:active { background: #111; }
-  .mac-close:focus-visible,
-  .mac-zoom:focus-visible {
+  .mac-close:active { background: #111; }
+  .mac-close:focus-visible {
     outline: 2px solid var(--mac-accent);
     outline-offset: 3px;
   }
@@ -565,7 +553,9 @@
   .mac-canvas {
     display: grid;
     place-items: center;
-    width: 100%;
+    width: min(100%, var(--stage-width, 100%));
+    height: var(--stage-height, auto);
+    margin: 0 auto;
     overflow: hidden;
     box-sizing: border-box;
     border: 2px solid #111;
@@ -575,8 +565,8 @@
   .mac-editorial-canvas { aspect-ratio: 4 / 3; }
   .mac-placeholder {
     display: block;
-    width: min(62%, 280px);
-    height: min(62%, 220px);
+    width: var(--image-width, min(62%, 280px));
+    height: var(--image-height, min(62%, 220px));
     max-width: 100%;
     max-height: 100%;
     padding: clamp(8px, 2vw, 20px);
@@ -584,6 +574,11 @@
     pointer-events: none;
     user-select: none;
     -webkit-user-drag: none;
+  }
+  .mac-window--magazine .mac-placeholder {
+    justify-self: end;
+    align-self: end;
+    padding: 0;
   }
   .mac-transport,
   .mac-page-rail,
@@ -664,9 +659,11 @@
   }
   .mac-page-rail { margin-bottom: -2px; }
   .mac-fashion-layout {
-    display: grid;
-    grid-template-columns: 34px minmax(0, 1fr);
+    display: inline-grid;
+    grid-template-columns: 34px var(--stage-width, minmax(0, 1fr));
     gap: 8px;
+    max-width: 100%;
+    margin: 0 auto;
   }
   .mac-tool-rail {
     display: flex;
